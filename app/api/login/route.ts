@@ -8,7 +8,10 @@ export async function POST(req: Request) {
     const { email, password } = await req.json();
 
     if (!email || !password) {
-      return Response.json({ error: "Missing fields" }, { status: 400 });
+      return Response.json(
+        { error: "Missing fields" },
+        { status: 400 }
+      );
     }
 
     const result = await db
@@ -19,22 +22,18 @@ export async function POST(req: Request) {
 
     const user = result[0];
 
-    if (!user) {
+    // ✅ FIX: handle BOTH missing user and missing password safely
+    if (!user || !user.password) {
       return Response.json(
-        { error: "User not found" },
-        { status: 404 }
+        { error: "Invalid credentials" },
+        { status: 401 }
       );
     }
 
-    // ✅ FIX: ensure password exists before bcrypt
-    if (!user.password) {
-      return Response.json(
-        { error: "Invalid user data" },
-        { status: 400 }
-      );
-    }
+    // now TS is happy: password is guaranteed string
+    const hashedPassword: string = user.password;
 
-    const ok = await bcrypt.compare(password, user.password);
+    const ok = await bcrypt.compare(password, hashedPassword);
 
     if (!ok) {
       return Response.json(
