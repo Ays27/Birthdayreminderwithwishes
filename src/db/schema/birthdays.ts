@@ -5,5 +5,6 @@ export const birthdays = pgTable("birthdays", {
   userId: text("user_id").notNull(),
   name: text("name").notNull(),
   date: text("date").notNull(),
+  wish: text("wish"),
   createdAt: timestamp("created_at").defaultNow(),
 });
