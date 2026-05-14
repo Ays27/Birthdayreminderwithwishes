@@ -26,6 +26,14 @@ export async function POST(req: Request) {
       );
     }
 
+    // ✅ FIX: ensure password exists before bcrypt
+    if (!user.password) {
+      return Response.json(
+        { error: "Invalid user data" },
+        { status: 400 }
+      );
+    }
+
     const ok = await bcrypt.compare(password, user.password);
 
     if (!ok) {
